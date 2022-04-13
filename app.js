@@ -24,6 +24,14 @@ mongoose.connect("mongodb://localhost:27017/mestodb", {
   useUnifiedTopology: true,
 });
 
+// id пользователя
+app.use((req, res, next) => {
+  req.user = {
+    _id: "62568e512082c7c0e4ba8033", // вставляем сюда _id созданного в postman пользователя
+  };
+  next();
+});
+
 // Подписываемся на маршруты
 app.use(usersRoute);
 

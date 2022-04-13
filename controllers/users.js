@@ -6,23 +6,31 @@
 
 const User = require("../models/user");
 
+const ERROR_NOT_FOUND = 404;
+const BAD_REQUEST = 400;
+
 // Получаем всех пользователей
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
-    .catch(() => res.status(500).send({ message: "Ошибка файла пользователей" }));
+    .catch(() => res.status(500).send({ message: "Что-то пошло не так" }));
 };
 
 // Возвращаем пользователя по _id
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
-      // if (!user) {
-      //   return res.status(404).send({ message: "Пользователь с указанным _id не найден" });
-      // }
-      res.status(200).send({ data: user });
+      if (!user) {
+        return res.status(ERROR_NOT_FOUND).send({ message: "Пользователь с указанным _id не найден" });
+      }
+      return res.status(200).send({ data: user });
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(ERROR_NOT_FOUND).send({ message: "Нет пользователя с таким id" });
+      }
+      return res.status(500).send({ message: "Что-то пошло не так" });
+    });
 };
 
 // Создаем пользователя
@@ -34,8 +42,12 @@ module.exports.createUser = (req, res) => {
       about: user.about,
       avatar: user.avatar,
     }))
-    // .catch((err) => res.status(500).send({ message: err.message }));
-    .catch(() => res.status(500).send({ message: "Ошибка при создании пользователя" }));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
+      }
+      return res.status(500).send({ message: "Что-то пошло не так" });
+    });
 };
 
 // Обновляем профиль пользователя
@@ -50,7 +62,12 @@ module.exports.updateUser = (req, res) => {
     .then((newUserInfo) => {
       res.status(200).send({ data: newUserInfo });
     })
-    .catch(() => res.status(500).send({ message: "Ошибка при изменении профиля" }));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
+      }
+      return res.status(500).send({ message: "Что-то пошло не так" });
+    });
 };
 
 // Обновляем аватар
@@ -65,5 +82,10 @@ module.exports.updateAvatar = (req, res) => {
     .then((newUserAvatar) => {
       res.status(200).send({ data: newUserAvatar });
     })
-    .catch(() => res.status(500).send({ message: "Ошибка при изменении аватара" }));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
+      }
+      return res.status(500).send({ message: "Что-то пошло не так" });
+    });
 };

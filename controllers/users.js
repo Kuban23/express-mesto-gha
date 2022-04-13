@@ -8,12 +8,13 @@ const User = require("../models/user");
 
 const ERROR_NOT_FOUND = 404;
 const BAD_REQUEST = 400;
+const INTERNAL_SERVER_ERR = 500;
 
 // Получаем всех пользователей
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
-    .catch(() => res.status(500).send({ message: "Что-то пошло не так" }));
+    .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" }));
 };
 
 // Возвращаем пользователя по _id
@@ -29,7 +30,7 @@ module.exports.getUserById = (req, res) => {
       if (err.name === "CastError") {
         return res.status(ERROR_NOT_FOUND).send({ message: "Нет пользователя с таким id" });
       }
-      return res.status(500).send({ message: "Что-то пошло не так" });
+      return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
 };
 
@@ -46,7 +47,7 @@ module.exports.createUser = (req, res) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
       }
-      return res.status(500).send({ message: "Что-то пошло не так" });
+      return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
 };
 
@@ -66,7 +67,7 @@ module.exports.updateUser = (req, res) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
       }
-      return res.status(500).send({ message: "Что-то пошло не так" });
+      return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
 };
 
@@ -86,6 +87,6 @@ module.exports.updateAvatar = (req, res) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
       }
-      return res.status(500).send({ message: "Что-то пошло не так" });
+      return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
 };

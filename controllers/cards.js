@@ -6,16 +6,20 @@
 
 const Card = require("../models/card");
 
+const ERROR_NOT_FOUND = 404;
+const BAD_REQUEST = 400;
+const INTERNAL_SERVER_ERR = 500;
+
 // Возвращаем все карточки
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => {
-      // if (!cards) {
-      //   return res.status(404).send({ message: "Карточки не найдены" });
-      // }
-      res.status(200).send({ data: cards });
+      if (!cards) {
+        return res.status(ERROR_NOT_FOUND).send({ message: "Карточки не найдены" });
+      }
+      return res.status(200).send({ data: cards });
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" }));
 };
 
 // Создаём карточку
@@ -27,7 +31,12 @@ module.exports.createCard = (req, res) => {
       name: card.name,
       link: card.link,
     }))
-    .catch(() => res.status(500).send({ message: "Ошибка при создании карточки" }));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
+      }
+      return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+    });
 };
 
 // Удаляем карточку по id
@@ -35,7 +44,12 @@ module.exports.removeCard = (req, res) => {
   // Находим карточку и удалим
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: "Ошибка при удалении карточки" }));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(ERROR_NOT_FOUND).send({ message: "Карточка не найдена" });
+      }
+      return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+    });
 };
 
 // Ставим лайк карточке
@@ -48,7 +62,12 @@ module.exports.likeCard = (req, res) => {
     .then((card) => {
       res.status(200).send({ data: card });
     })
-    .catch(() => res.status(500).send({ message: "Ошибка при постанке лайка" }));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(ERROR_NOT_FOUND).send({ message: "Не получилось поставить лайк" });
+      }
+      return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+    });
 };
 
 // Удаляем лайк с карточки
@@ -61,5 +80,10 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => {
       res.status(200).send({ data: card });
     })
-    .catch(() => res.status(500).send({ message: "Ошибка при удалении лайка" }));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res.status(ERROR_NOT_FOUND).send({ message: "Не получилось удалить лайк" });
+      }
+      return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+    });
 };

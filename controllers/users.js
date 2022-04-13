@@ -53,7 +53,7 @@ module.exports.updateUser = (req, res) => {
     .catch(() => res.status(500).send({ message: "Ошибка при изменении профиля" }));
 };
 
-// обновляем аватар
+// Обновляем аватар
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   // ищем пользователя по id

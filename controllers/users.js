@@ -1,6 +1,8 @@
 // GET /users — возвращает всех пользователей
 // GET /users/:userId - возвращает пользователя по _id
 // POST /users — создаёт пользователя
+// PATCH /users/me — обновляет профиль
+// PATCH /users/me/avatar — обновляет аватар
 
 const User = require("../models/user");
 
@@ -34,4 +36,34 @@ module.exports.createUser = (req, res) => {
     }))
     // .catch((err) => res.status(500).send({ message: err.message }));
     .catch(() => res.status(500).send({ message: "Ошибка при создании пользователя" }));
+};
+
+// Обновляем профиль пользователя
+module.exports.updateUser = (req, res) => {
+  const { name, about } = req.body;
+  // ищем пользователя по id
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    { new: true },
+  )
+    .then((newUserInfo) => {
+      res.status(200).send({ data: newUserInfo });
+    })
+    .catch(() => res.status(500).send({ message: "Ошибка при изменении профиля" }));
+};
+
+// обновляем аватар
+module.exports.updateAvatar = (req, res) => {
+  const { avatar } = req.body;
+  // ищем пользователя по id
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    { new: true },
+  )
+    .then((newUserAvatar) => {
+      res.status(200).send({ data: newUserAvatar });
+    })
+    .catch(() => res.status(500).send({ message: "Ошибка при изменении аватара" }));
 };

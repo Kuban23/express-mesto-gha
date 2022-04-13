@@ -25,9 +25,15 @@ module.exports.getUserById = (req, res) => {
 };
 
 // Создаем пользователя
+
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+    }))
+    // .catch((err) => res.status(500).send({ message: err.message }));
     .catch(() => res.status(500).send({ message: "Ошибка при создании пользователя" }));
 };

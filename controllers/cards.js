@@ -33,7 +33,7 @@ module.exports.createCard = (req, res) => {
       link: card.link,
     }))
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
       }
       return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });

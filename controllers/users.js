@@ -28,7 +28,7 @@ module.exports.getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(ERROR_NOT_FOUND).send({ message: "Нет пользователя с таким id" });
+        return res.status(BAD_REQUEST).send({ message: "Нет пользователя с таким id" });
       }
       return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
@@ -44,7 +44,7 @@ module.exports.createUser = (req, res) => {
       avatar: user.avatar,
     }))
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
       }
       return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
@@ -64,7 +64,7 @@ module.exports.updateUser = (req, res) => {
       res.status(200).send({ data: newUserInfo });
     })
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
       }
       return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
@@ -84,7 +84,7 @@ module.exports.updateAvatar = (req, res) => {
       res.status(200).send({ data: newUserAvatar });
     })
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
       }
       return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });

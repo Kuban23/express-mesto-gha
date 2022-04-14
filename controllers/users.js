@@ -34,7 +34,7 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
-// Создаем пользователя
+// Создаем пользователя  findByIdAndUpdate
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })

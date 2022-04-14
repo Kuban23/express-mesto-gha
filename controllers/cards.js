@@ -79,11 +79,14 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .then((card) => {
-      res.status(200).send({ data: card });
+      if(!card){
+        return res.status(ERROR_NOT_FOUND).send({message: "Карточка с таким id не найдена"})
+      }
+      return res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(ERROR_NOT_FOUND).send({ message: "Не получилось удалить лайк" });
+        return res.status(BAD_REQUEST).send({ message: "Не получилось удалить лайк" });
       }
       return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });

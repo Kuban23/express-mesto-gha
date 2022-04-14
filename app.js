@@ -12,6 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // для приёма ве�
 
 // Подключаем роуты
 const usersRoute = require("./routes/users");
+const cardsRoute = require("./routes/cards");
 
 // Слушаем 3000 порт
 const { PORT = 3000 } = process.env;
@@ -34,6 +35,7 @@ app.use((req, res, next) => {
 
 // Подписываемся на маршруты
 app.use(usersRoute);
+app.use(cardsRoute);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

@@ -13,40 +13,48 @@ const INTERNAL_SERVER_ERR = 500;
 // Возвращаем все карточки
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .then((cards) => {
-      if (!cards) {
-        res.status(ERROR_NOT_FOUND).send({ message: "Карточки не найдены" });
-      } else res.status(200).send({ data: cards });
-    })
-    .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Переданы некорректные данные" });
-      } else {
-        res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
-      }
-    });
-  // .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" }));
+    .then((cards) => res.send({ data: cards }))
+    // .then((cards) => {
+    //   if (!cards) {
+    //     res.status(ERROR_NOT_FOUND).send({ message: "Карточки не найдены" });
+    //   } else res.status(200).send({ data: cards });
+    // })
+    // .catch((err) => {
+    //   if (err.name === "CastError") {
+    //     res.status(BAD_REQUEST).send({ message: "Переданы некорректные данные" });
+    //   } else {
+    //     res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+    //   }
+    // });
+    .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" }));
 };
 
 // Создаём карточку
 module.exports.createCard = (req, res) => {
   // console.log(req.user._id); // _id станет доступен
-  const owner = req.user._id;
   const { name, link } = req.body;
+  const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send({
       name: card.name,
       link: card.link,
     }))
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === "ValidationError") {
         res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-      } else if (err.name === "ValidationError") {
-        res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-      } else {
-        res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+        return;
       }
+      res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
+  // .catch((err) => {
+  //   if (err.name === "CastError") {
+  //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
+  //   } else if (err.name === "ValidationError") {
+  //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
+  //   } else {
+  //     res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+  //   }
+  // });
   // .catch((err) => {
   //   if (err.name === "ValidationError") {
   //     return res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
@@ -62,12 +70,15 @@ module.exports.removeCard = (req, res) => {
     .then((card) => {
       if (!card) { // Добавил проверку
         res.status(ERROR_NOT_FOUND).send({ message: "Карточка с таким id не найдена" });
-      } else res.send({ data: card });
+      }
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(BAD_REQUEST).send({ message: "Карточка не найдена" });
-      } else res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+        return;
+      }
+      res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
   // .catch((err) => {
   //   if (err.name === "CastError") {
@@ -87,12 +98,15 @@ module.exports.likeCard = (req, res) => {
     .then((card) => {
       if (!card) { // Добавил проверку
         res.status(ERROR_NOT_FOUND).send({ message: "Карточка с таким id не найдена" });
-      } else res.send({ data: card });
+      }
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(BAD_REQUEST).send({ message: "Не получилось поставить лайк" });
-      } else res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+        return;
+      }
+      res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
   // .catch((err) => {
   //   if (err.name === "CastError") {
@@ -112,12 +126,15 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(ERROR_NOT_FOUND).send({ message: "Карточка с таким id не найдена" });
-      } else res.status(200).send({ data: card });
+      }
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(BAD_REQUEST).send({ message: "Не получилось удалить лайк" });
-      } else res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+        return;
+      }
+      res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
   // .catch((err) => {
   //   if (err.name === "CastError") {

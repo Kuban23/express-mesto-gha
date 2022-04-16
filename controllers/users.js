@@ -13,13 +13,14 @@ const INTERNAL_SERVER_ERR = 500;
 // Получаем всех пользователей
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send({ data: users }))
-    .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Нет таких пользователей" });
-      } else res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
-    });
-  // .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" }));
+    .then((users) => res.send({ data: users }))
+    // .then((users) => res.status(200).send({ data: users }))
+    // .catch((err) => {
+    //   if (err.name === "CastError") {
+    //     res.status(BAD_REQUEST).send({ message: "Нет таких пользователей" });
+    //   } else res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+    // });
+    .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" }));
 };
 
 // Возвращаем пользователя по _id
@@ -28,13 +29,16 @@ module.exports.getUserById = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(ERROR_NOT_FOUND).send({ message: "Пользователь с указанным _id не найден" });
-      } else res.status(200).send({ data: user });
+      }
+      res.send({ data: user });
+      // } else res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Нет пользователя с таким id" });
+        res.status(BAD_REQUEST).send({ message: "Нет пользователя с таким id" });
+        return;
       }
-      return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+      res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
   // .catch((err) => {
   //   if (err.name === "CastError") {
@@ -53,21 +57,22 @@ module.exports.createUser = (req, res) => {
       about: user.about,
       avatar: user.avatar,
     }))
+    // .catch((err) => {
+    //   if (err.name === "CastError") {
+    //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
+    //   } else if (err.name === "ValidationError") {
+    //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
+    //   } else {
+    //     res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+    //   }
+    // });
     .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-      } else if (err.name === "ValidationError") {
-        res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-      } else {
-        res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+      if (err.name === "ValidationError") {
+        res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
+        return;
       }
+      res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
-  // .catch((err) => {
-  //   if (err.name === "ValidationError") {
-  //     return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
-  //   }
-  //   return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
-  // });
 };
 
 // Обновляем профиль пользователя
@@ -81,16 +86,27 @@ module.exports.updateUser = (req, res) => {
   )
     .then((newUserInfo) => {
       res.status(200).send({ data: newUserInfo });
+      // res.status(200).send({ data: newUserInfo });
     })
     .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-      } else if (err.name === "ValidationError") {
-        res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-      } else {
-        res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+      if (err.name === "ValidationError") {
+        res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
+        return;
       }
+      if (err.name === "CastError") {
+        res.status(BAD_REQUEST).send({ message: "передан некорректный id" });
+      }
+      res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
+  // .catch((err) => {
+  //   if (err.name === "CastError") {
+  //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
+  //   } else if (err.name === "ValidationError") {
+  //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
+  //   } else {
+  //     res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+  //   }
+  // });
   // .catch((err) => {
   //   if (err.name === "ValidationError") {
   //     return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
@@ -112,14 +128,24 @@ module.exports.updateAvatar = (req, res) => {
       res.status(200).send({ data: newUserAvatar });
     })
     .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-      } else if (err.name === "ValidationError") {
-        res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-      } else {
-        res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+      if (err.name === "ValidationError") {
+        res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
+        return;
       }
+      if (err.name === "CastError") {
+        res.status(BAD_REQUEST).send({ message: "передан некорректный id" });
+      }
+      res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
     });
+  // .catch((err) => {
+  //   if (err.name === "CastError") {
+  //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
+  //   } else if (err.name === "ValidationError") {
+  //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
+  //   } else {
+  //     res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
+  //   }
+  // });
   // .catch((err) => {
   //   if (err.name === "ValidationError") {
   //     return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });

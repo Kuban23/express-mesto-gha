@@ -37,9 +37,9 @@ app.use((req, res, next) => {
 app.use(usersRoute);
 app.use(cardsRoute);
 
-app.use((req, res) => {
-  res.status(404).send({ message: 'Адреса по вашему запросу не существует' });
-});
+// app.use((req, res) => {
+//   res.status(404).send({ message: 'Адреса по вашему запросу не существует' });
+// });
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

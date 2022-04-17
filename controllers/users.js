@@ -84,11 +84,11 @@ module.exports.updateUser = (req, res) => {
     { name, about },
     {
       new: true,
-      runValidators: true
+      runValidators: true,
     },
   )
     .then((newUserInfo) => {
-      res.status(200).send({ data: newUserInfo });
+      res.send({ data: newUserInfo });
       // res.status(200).send({ data: newUserInfo });
     })
     .catch((err) => {
@@ -127,11 +127,12 @@ module.exports.updateAvatar = (req, res) => {
     { avatar },
     {
       new: true,
-      runValidators: true
+      runValidators: true,
     },
   )
     .then((newUserAvatar) => {
-      res.status(200).send({ data: newUserAvatar });
+      res.send({ data: newUserAvatar });
+      // res.status(200).send({ data: newUserAvatar });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

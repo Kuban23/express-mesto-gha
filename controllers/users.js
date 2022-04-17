@@ -14,18 +14,13 @@ const INTERNAL_SERVER_ERR = 500;
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    // .then((users) => res.status(200).send({ data: users }))
-    // .catch((err) => {
-    //   if (err.name === "CastError") {
-    //     res.status(BAD_REQUEST).send({ message: "Нет таких пользователей" });
-    //   } else res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
-    // });
     .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' }));
 };
 
 // Возвращаем пользователя по _id
 module.exports.getUserById = (req, res) => {
-  User.findById(req.params.userId)
+  // User.findById(req.params.userId)
+     User.findById(req.params.id)
     .then((user) => {
       if (!user) {
         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });

@@ -38,7 +38,7 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send({
       name: card.name,
       link: card.link,
-      owner: card.owner
+      owner: card.owner,
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {

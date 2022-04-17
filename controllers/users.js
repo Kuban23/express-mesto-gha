@@ -52,7 +52,7 @@ module.exports.createUser = (req, res) => {
       // about: user.about,
       // avatar: user.avatar,
       // id: user._id,
-      data:user
+      data: user,
     }))
     // .catch((err) => {
     //   if (err.name === "CastError") {

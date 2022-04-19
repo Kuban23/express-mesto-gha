@@ -25,22 +25,15 @@ module.exports.getUserById = (req, res) => {
       if (!user) {
         res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
       }
-      res.send({ data: user });
-      // } else res.status(200).send({ data: user });
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Нет пользователя с таким id' });
+        res.status(BAD_REQUEST).send({ message: 'Переданный id некорректный' });
         return;
       }
       res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });
-  // .catch((err) => {
-  //   if (err.name === "CastError") {
-  //     return res.status(BAD_REQUEST).send({ message: "Нет пользователя с таким id" });
-  //   }
-  //   return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
-  // });
 };
 
 // Создаем пользователя  findByIdAndUpdate
@@ -48,21 +41,8 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => res.send({
-      // name: user.name,
-      // about: user.about,
-      // avatar: user.avatar,
-      // id: user._id,
       data: user,
     }))
-    // .catch((err) => {
-    //   if (err.name === "CastError") {
-    //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-    //   } else if (err.name === "ValidationError") {
-    //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-    //   } else {
-    //     res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
-    //   }
-    // });
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'переданы некорректные данные' });
@@ -86,7 +66,6 @@ module.exports.updateUser = (req, res) => {
   )
     .then((newUserInfo) => {
       res.send({ data: newUserInfo });
-      // res.status(200).send({ data: newUserInfo });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -98,21 +77,6 @@ module.exports.updateUser = (req, res) => {
       }
       res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });
-  // .catch((err) => {
-  //   if (err.name === "CastError") {
-  //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-  //   } else if (err.name === "ValidationError") {
-  //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-  //   } else {
-  //     res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
-  //   }
-  // });
-  // .catch((err) => {
-  //   if (err.name === "ValidationError") {
-  //     return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
-  //   }
-  //   return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
-  // });
 };
 
 // Обновляем аватар
@@ -129,7 +93,6 @@ module.exports.updateAvatar = (req, res) => {
   )
     .then((newUserAvatar) => {
       res.send({ data: newUserAvatar });
-      // res.status(200).send({ data: newUserAvatar });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -141,19 +104,4 @@ module.exports.updateAvatar = (req, res) => {
       }
       res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });
-  // .catch((err) => {
-  //   if (err.name === "CastError") {
-  //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-  //   } else if (err.name === "ValidationError") {
-  //     res.status(BAD_REQUEST).send({ message: "Не корректные данные" });
-  //   } else {
-  //     res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
-  //   }
-  // });
-  // .catch((err) => {
-  //   if (err.name === "ValidationError") {
-  //     return res.status(BAD_REQUEST).send({ message: "переданы некорректные данные" });
-  //   }
-  //   return res.status(INTERNAL_SERVER_ERR).send({ message: "Что-то пошло не так" });
-  // });
 };

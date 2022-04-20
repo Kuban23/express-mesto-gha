@@ -41,7 +41,7 @@ module.exports.removeCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) { // Добавил проверку
-        res.status(ERROR_NOT_FOUND).send({ message: 'Переданный id некорректный' });
+        return res.status(ERROR_NOT_FOUND).send({ message: 'Переданный id некорректный' });
       }
       return res.send({ data: card });
     })
@@ -63,7 +63,7 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) { // Добавил проверку
-        res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' });
+        return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' });
       }
       return res.send({ data: card });
     })
@@ -85,7 +85,7 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' });
+        return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' });
       }
       return res.send({ data: card });
     })

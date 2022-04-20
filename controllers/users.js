@@ -23,7 +23,7 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
+        return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
       }
       return res.send({ data: user });
     })

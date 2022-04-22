@@ -4,9 +4,11 @@
 // PATCH /users/me — обновляет профиль
 // PATCH /users/me/avatar — обновляет аватар
 
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs'); // импортируем bcrypt
+const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken
 const User = require('../models/user');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
 const ERROR_NOT_FOUND = 404;
 const BAD_REQUEST = 400;
 const INTERNAL_SERVER_ERR = 500;
@@ -118,5 +120,18 @@ module.exports.updateAvatar = (req, res) => {
         res.status(BAD_REQUEST).send({ message: 'передан некорректный id' });
       }
       res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
+    });
+};
+
+// Создали контроллер login который проверяет логин и пароль
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch(() => {
+      // next(new AuthentificationError('Неправильный адрес почты или пароль'));
     });
 };

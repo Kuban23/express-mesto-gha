@@ -1,10 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const app = express();
-
 // Импортируем body-parser
 const bodyParser = require('body-parser');
+
+// Подключаем контроллеры
+const { login, createUser } = require('./controllers/users');
+
+const app = express();
 
 // Выбирваем методы для работы спакетами
 app.use(bodyParser.json()); // для собирания JSON-формата
@@ -34,6 +37,8 @@ app.use((req, res, next) => {
 // Подписываемся на маршруты
 app.use(usersRoute);
 app.use(cardsRoute);
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use('/', (req, res) => {
   res.status(404).send({ message: 'Такого адреса по запросу не существует' });

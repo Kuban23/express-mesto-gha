@@ -45,7 +45,7 @@ module.exports.removeCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       // Проверяем может ли пользователь удалить карточку
-      // card.owner._id имеет формат object, а user._id- string
+      // card.owner._id имеет формат object, а user._id -string
       // Приводим к строке
       if (req.user._id !== card.owner.toString()) {
         // Выдаем ошибку, что пользователь не может удалить чужую карточку

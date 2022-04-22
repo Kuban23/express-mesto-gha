@@ -9,9 +9,13 @@ const jwt = require('jsonwebtoken'); // импортируем модуль json
 const User = require('../models/user');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
-const ERROR_NOT_FOUND = 404;
-const BAD_REQUEST = 400;
-const INTERNAL_SERVER_ERR = 500;
+const ERROR_NOT_FOUND = require('../errors/error_not_found_404');
+
+const BAD_REQUEST = require('../errors/error_bad_request_400');
+
+const INTERNAL_SERVER_ERR = require('../errors/error_inretnal_server_500');
+
+const AuthentificationError = require('../errors/error_Authentification_401');
 
 // Получаем всех пользователей
 module.exports.getUsers = (req, res) => {
@@ -132,6 +136,17 @@ module.exports.login = (req, res, next) => {
       res.send({ token });
     })
     .catch(() => {
-      // next(new AuthentificationError('Неправильный адрес почты или пароль'));
+      next(new AuthentificationError('Неправильный адрес почты или пароль'));
     });
 };
+
+// Создали контроллер для получения пользователя
+module.exports.getCurrentUser = (req, res, next) => User
+  .findOne({ _id: req.user._id })
+  .then((user) => {
+    if (!user) {
+      throw new ERROR_NOT_FOUND('Пользователь с указанным _id не найден');
+    }
+    res.status(200).send(user);
+  })
+  .catch(next);

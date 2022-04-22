@@ -6,9 +6,13 @@
 
 const Card = require('../models/card');
 
-const ERROR_NOT_FOUND = 404;
-const BAD_REQUEST = 400;
-const INTERNAL_SERVER_ERR = 500;
+const ERROR_NOT_FOUND = require('../errors/error_not_found_404');
+
+const BAD_REQUEST = require('../errors/error_bad_request_400');
+
+const INTERNAL_SERVER_ERR = require('../errors/error_inretnal_server_500');
+
+const DeleteSomeoneError = require('../errors/errore_delete_someone_403');
 
 // Возвращаем все карточки
 module.exports.getCards = (req, res) => {
@@ -40,11 +44,24 @@ module.exports.removeCard = (req, res) => {
   // Находим карточку и удалим
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
-      if (!card) { // Добавил проверку
-        return res.status(ERROR_NOT_FOUND).send({ message: 'Переданный id некорректный' });
+      // Проверяем может ли пользователь удалить карточку
+      // card.owner._id имеет формат object, а user._id- string
+      // Приводим к строке
+      if (req.user._id !== card.owner.toString()) {
+        // Выдаем ошибку, что пользователь не может удалить чужую карточку
+        throw new DeleteSomeoneError('Нельзя удалить чужую карточку');
+      } else {
+        card.remove();
+        res.status(200)
+          .send({ message: `Карточка с id ${card.id} удалена!` });
       }
-      return res.send({ data: card });
     })
+    // .then((card) => {
+    //   if (!card) { // Добавил проверку
+    //     return res.status(ERROR_NOT_FOUND).send({ message: 'Переданный id некорректный' });
+    //   }
+    //   return res.send({ data: card });
+    // })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: 'Переданный id некорректный' });

@@ -4,6 +4,7 @@
 // PATCH /users/me — обновляет профиль
 // PATCH /users/me/avatar — обновляет аватар
 
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
 const ERROR_NOT_FOUND = 404;
@@ -38,11 +39,25 @@ module.exports.getUserById = (req, res) => {
 
 // Создаем пользователя  findByIdAndUpdate
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.send({
-      data: user,
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
     }))
+    // User.create({ name, about, avatar })
+    //   .then((user) => res.send({
+    //     data: user,
+    //   }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'переданы некорректные данные' });

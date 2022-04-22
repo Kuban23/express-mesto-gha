@@ -17,6 +17,8 @@ const INTERNAL_SERVER_ERR = require('../errors/error_inretnal_server_500');
 
 const AuthentificationError = require('../errors/error_Authentification_401');
 
+const ConflictError = require('../errors/error_ConflictError_409');
+
 // Получаем всех пользователей
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -68,6 +70,9 @@ module.exports.createUser = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'переданы некорректные данные' });
         return;
+      }
+      if (err.name === 'MongoError' && err.code === 11000) {
+        throw new ConflictError('Пользователь с указанным email уже существует');
       }
       res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });

@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
   // достаём авторизационный заголовок
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new AuthentificationError('Передан неверный логин или пароль!');
+    throw new AuthentificationError('Передан неверный логин или пароль');
   }
   const token = authorization.replace('Bearer ', '');
   let payload;

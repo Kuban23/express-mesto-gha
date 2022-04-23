@@ -37,8 +37,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 // });
 
 // Подписываемся на маршруты
-app.use(auth, usersRoute);
-app.use(auth, cardsRoute);
+app.use(usersRoute);
+app.use(cardsRoute);
 
 // Маршруты для регистрации и авторизации
 // Валидация приходящих на сервер данных

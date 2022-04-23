@@ -1,9 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { celebrate, Joi } = require('celebrate');
+const bodyParser = require('body-parser');
+const auth = require('./middlewares/auth');
 
 // Импортируем body-parser
-const bodyParser = require('body-parser');
 
 // Подключаем контроллеры
 const { login, createUser } = require('./controllers/users');
@@ -36,8 +37,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 // });
 
 // Подписываемся на маршруты
-app.use(usersRoute);
-app.use(cardsRoute);
+app.use(auth, usersRoute);
+app.use(auth, cardsRoute);
 
 // Маршруты для регистрации и авторизации
 // Валидация приходящих на сервер данных
@@ -48,18 +49,22 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string()
-      .regex(
-        /^((http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9\\-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-\\/])*)?/,
-      ),
+app.post(
+  '/signup',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required(),
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+      avatar: Joi.string()
+        .regex(
+          /^((http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9\\-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-\\/])*)?/,
+        ),
+    }),
   }),
-}), createUser);
+  createUser,
+);
 
 app.use('/', (req, res) => {
   res.status(404).send({ message: 'Такого адреса по запросу не существует' });

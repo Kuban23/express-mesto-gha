@@ -7,15 +7,36 @@
 // GET /users/me — возвращает информацию о текущем пользователе
 
 const router = require('express').Router();
+const { celebrate, Joi } = require('celebrate');
+
 const {
   getUsers, getUserById, updateUser, updateAvatar, getCurrentUser,
 } = require('../controllers/users');
 
 router.get('/users', getUsers);
-router.get('/users/:userId', getUserById);
+router.get('/users/:userId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().length(24).hex(),
+  }),
+}), getUserById);
+
 // router.post('/users', createUser);
 router.patch('/users/me', updateUser);
-router.patch('/users/me/avatar', updateAvatar);
-router.get('/users/me', getCurrentUser);
+
+router.patch('/users/me/avatar', celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().min(2).required()
+      .regex(
+        /^((http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9\\-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-\\/])*)?/,
+      ),
+  }),
+}), updateAvatar);
+
+router.get('/users/me', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
+  }),
+}), getCurrentUser);
 
 module.exports = router;

@@ -28,7 +28,6 @@ module.exports.getUsers = (req, res) => {
 
 // Возвращаем пользователя по _id
 module.exports.getUserById = (req, res) => {
-  // User.findById(req.params.userId)
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
@@ -46,7 +45,7 @@ module.exports.getUserById = (req, res) => {
 };
 
 // Создаем пользователя  findByIdAndUpdate
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -68,14 +67,24 @@ module.exports.createUser = (req, res) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'переданы некорректные данные' });
-        return;
+        next(new BAD_REQUEST('Некорректные данные пользователя'));
       }
-      if (err.name === 'MongoError' && err.code === 11000) {
-        throw new ConflictError('Пользователь с указанным email уже существует');
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким email зарегистрирован'));
+      } else {
+        next(err);
       }
-      res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });
+  // .catch((err) => {
+  //   if (err.name === 'ValidationError') {
+  //     res.status(BAD_REQUEST).send({ message: 'переданы некорректные данные' });
+  //     return;
+  //   }
+  //   if (err.name === 'MongoError' && err.code === 11000) {
+  //     throw new ConflictError('Пользователь с указанным email уже существует');
+  //   }
+  //   res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
+  // });
 };
 
 // Обновляем профиль пользователя
@@ -138,7 +147,7 @@ module.exports.login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
-      res.send({ token });
+      return res.status(200).send({ token });
     })
     .catch(() => {
       next(new AuthentificationError('Неправильный адрес почты или пароль'));
@@ -146,12 +155,13 @@ module.exports.login = (req, res, next) => {
 };
 
 // Создали контроллер для получения пользователя
-module.exports.getCurrentUser = (req, res, next) => User
-  .findOne({ _id: req.user._id })
-  .then((user) => {
-    if (!user) {
-      throw new ERROR_NOT_FOUND('Пользователь с указанным _id не найден');
-    }
-    res.status(200).send(user);
-  })
-  .catch(next);
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findOne(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new ERROR_NOT_FOUND('Пользователь с указанным _id не найден');
+      }
+      res.status(200).send({ data: user });
+    })
+    .catch((err) => next(err));
+};

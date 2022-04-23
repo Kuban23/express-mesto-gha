@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, Joi } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const bodyParser = require('body-parser');
 // const auth = require('./middlewares/auth');
 
@@ -37,7 +37,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 // });
 
 // Подписываемся на маршруты
-app.use(usersRoute);
+app.use('/users', usersRoute);
 app.use(cardsRoute);
 
 // Маршруты для регистрации и авторизации
@@ -69,6 +69,9 @@ app.post(
 app.use('/', (req, res) => {
   res.status(404).send({ message: 'Такого адреса по запросу не существует' });
 });
+
+// Создал обработчик ошибок для celebrate
+app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

@@ -2,9 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { errors, celebrate, Joi } = require('celebrate');
 const bodyParser = require('body-parser');
-// const auth = require('./middlewares/auth');
+const auth = require('./middlewares/auth');
 
-// Импортируем body-parser
+const ERROR_NOT_FOUND = require('./errors/error_not_found_404');
 
 // Подключаем контроллеры
 const { login, createUser } = require('./controllers/users');
@@ -37,8 +37,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 // });
 
 // Подписываемся на маршруты
-app.use('/users', usersRoute);
-app.use(cardsRoute);
+app.use(auth, usersRoute);
+app.use(auth, cardsRoute);
 
 // Маршруты для регистрации и авторизации
 // Валидация приходящих на сервер данных
@@ -66,12 +66,28 @@ app.post(
   createUser,
 );
 
-app.use('/', (req, res) => {
-  res.status(404).send({ message: 'Такого адреса по запросу не существует' });
+// app.use('/', (req, res) => {
+//   res.status(ERROR_NOT_FOUND).send({ message: 'Такого адреса по запросу не существует' });
+// });
+
+app.use('*', auth, (req, res, next) => {
+  next(new ERROR_NOT_FOUND('Запрашиваемая страница не найдена'));
 });
 
 // Создал обработчик ошибок для celebrate
 app.use(errors());
+
+app.use((err, req, res, next) => {
+  const { message } = err;
+  const statusCode = err.statusCode || 500;
+  // проверяем статус, отправляем сообщение в зависимости от статуса
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? 'Ошибка на сервере'
+      : message,
+  });
+  next();
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

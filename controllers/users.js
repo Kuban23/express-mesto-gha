@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs'); // импортируем bcrypt
 const jwt = require('jsonwebtoken'); // импортируем модуль jsonwebtoken
 const User = require('../models/user');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+// const { NODE_ENV, JWT_SECRET } = process.env;
 const ERROR_NOT_FOUND = require('../errors/error_not_found_404');
 
 const BAD_REQUEST = require('../errors/error_bad_request_400');
@@ -53,6 +53,9 @@ module.exports.createUser = (req, res, next) => {
     email,
     password,
   } = req.body;
+  if (!email || !password) {
+    next(new BAD_REQUEST('Не передан email или пароль'));
+  }
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
       name,
@@ -144,9 +147,11 @@ module.exports.updateAvatar = (req, res) => {
 // Создали контроллер login который проверяет логин и пароль
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
+      // const token = jwt.sign({ _id: user._id },
+      // NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       return res.status(200).send({ token });
     })
     .catch(() => {
@@ -156,10 +161,10 @@ module.exports.login = (req, res, next) => {
 
 // Создали контроллер для получения пользователя
 module.exports.getCurrentUser = (req, res, next) => {
-  User.findOne(req.user._id)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw new ERROR_NOT_FOUND('Пользователь с указанным _id не найден');
+        next(new ERROR_NOT_FOUND('Пользователь с указанным _id не найден'));
       }
       res.status(200).send({ data: user });
     })

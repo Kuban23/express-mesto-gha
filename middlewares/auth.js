@@ -1,4 +1,4 @@
-const { NODE_ENV, JWT_SECRET } = process.env;
+// const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const AuthentificationError = require('../errors/error_Authentification_401');
 
@@ -11,9 +11,10 @@ module.exports = (req, res, next) => {
   const token = authorization.replace('Bearer ', '');
   let payload;
   try {
-    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key');
+    payload = jwt.verify(token, 'some-secret-key');
+    // payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key');
   } catch (err) {
-    throw new AuthentificationError('Передан неверный логин или пароль!!!');
+    next(new AuthentificationError('Передан неверный логин или пароль.'));
   }
   req.user = payload; // записываем пейлоуд в объект запроса
   next(); // пропускаем запрос дальше

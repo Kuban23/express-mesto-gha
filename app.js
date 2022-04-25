@@ -37,8 +37,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 // });
 
 // Подписываемся на маршруты
-app.use(usersRoute);
-app.use(cardsRoute);
+app.use('/', usersRoute);
+app.use('/', cardsRoute);
 
 // Маршруты для регистрации и авторизации
 // Валидация приходящих на сервер данных
@@ -77,6 +77,7 @@ app.use('*', auth, (req, res, next) => {
 // Создал обработчик ошибок для celebrate
 app.use(errors());
 
+// Обработка всех ошибок централизованно
 app.use((err, req, res, next) => {
   const { message } = err;
   const statusCode = err.statusCode || 500;
@@ -87,6 +88,16 @@ app.use((err, req, res, next) => {
       : message,
   });
   next();
+});
+
+// Защита авторизацией всех роутов
+app.use(auth);
+
+// ошибка роутеризации
+app.use((req, res, next) => {
+  const notFound = new Error('Такого ресурса нет');
+  notFound.statusCode = 404;
+  next(notFound);
 });
 
 app.listen(PORT, () => {

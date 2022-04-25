@@ -5,9 +5,11 @@ const AuthentificationError = require('../errors/error_Authentification_401');
 module.exports = (req, res, next) => {
   // достаём авторизационный заголовок
   const { authorization } = req.headers;
+  // убедимся, что он есть и начинается с Bearer
   if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new AuthentificationError('Передан неверный логин или пароль');
   }
+  // если токен на есть, берем его
   const token = authorization.replace('Bearer ', '');
   let payload;
   try {

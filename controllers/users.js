@@ -147,12 +147,12 @@ module.exports.updateAvatar = (req, res) => {
 // Создали контроллер login который проверяет логин и пароль
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       // const token = jwt.sign({ _id: user._id },
       // NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      return res.status(200).send({ token });
+      return res.status(200).send({ token }); // возвращаем токен в теле ответа
     })
     .catch(() => {
       next(new AuthentificationError('Неправильный адрес почты или пароль'));
@@ -160,13 +160,11 @@ module.exports.login = (req, res, next) => {
 };
 
 // Создали контроллер для получения пользователя
-module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      if (!user) {
-        next(new ERROR_NOT_FOUND('Пользователь с указанным _id не найден'));
-      }
-      res.status(200).send({ data: user });
-    })
-    .catch((err) => next(err));
-};
+module.exports.getCurrentUser = (req, res, next) => User.findById(req.user._id)
+  .then((user) => {
+    if (!user) {
+      next(new ERROR_NOT_FOUND('Пользователь с указанным _id не найден'));
+    }
+    res.status(200).send({ data: user });
+  })
+  .catch((err) => next(err));

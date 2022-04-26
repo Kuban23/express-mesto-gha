@@ -20,11 +20,10 @@ const AuthentificationError = require('../errors/error_Authentification_401');
 const ConflictError = require('../errors/error_ConflictError_409');
 
 // Получаем всех пользователей
-module.exports.getUsers = (req, res, next) => {
+module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
-    .catch((err) => next(err));
-  // .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' }));
+    .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' }));
 };
 
 // Возвращаем пользователя по _id

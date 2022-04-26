@@ -13,6 +13,10 @@ const {
   getUsers, getUserById, updateUser, updateAvatar, getCurrentUser,
 } = require('../controllers/users');
 
+// Получаем информацию о текущем пользователе
+router.get('/users/me', getCurrentUser);
+
+//  Возвращает всех пользователей
 router.get('/users', getUsers);
 
 router.get('/users/:userId', celebrate({
@@ -22,6 +26,7 @@ router.get('/users/:userId', celebrate({
 }), getUserById);
 
 // router.post('/users', createUser);
+// Обновляет профиль
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
@@ -29,6 +34,7 @@ router.patch('/users/me', celebrate({
   }),
 }), updateUser);
 
+// Обновляет аватар
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().min(2).required()
@@ -37,8 +43,5 @@ router.patch('/users/me/avatar', celebrate({
       ),
   }),
 }), updateAvatar);
-
-// Получаем информацию о текущем пользователе
-router.get('/users/me', getCurrentUser);
 
 module.exports = router;

@@ -1,3 +1,4 @@
+// Подключаем express
 const express = require('express');
 const mongoose = require('mongoose');
 const { errors, celebrate, Joi } = require('celebrate');
@@ -9,6 +10,7 @@ const ERROR_NOT_FOUND = require('./errors/error_not_found_404');
 // Подключаем контроллеры
 const { login, createUser } = require('./controllers/users');
 
+// Создаем приложение
 const app = express();
 
 // Выбирваем методы для работы спакетами
@@ -19,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // для приёма ве�
 const usersRoute = require('./routes/users');
 const cardsRoute = require('./routes/cards');
 
-// Слушаем 3000 порт
+// Настраиваем и слушаем 3000 порт
 const { PORT = 3000 } = process.env;
 
 // подключаемся к серверу mongo
@@ -36,10 +38,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 //   next();
 // });
 
-// Подписываемся на маршруты
-app.use('/', usersRoute);
-app.use('/', cardsRoute);
-
 // Маршруты для регистрации и авторизации
 // Валидация приходящих на сервер данных
 app.post('/signin', celebrate({
@@ -49,6 +47,7 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
+// роут для регистрации
 app.post(
   '/signup',
   celebrate({
@@ -65,6 +64,13 @@ app.post(
   }),
   createUser,
 );
+
+// Защита авторизацией всех маршрутов
+// app.use(auth);
+
+// Подписываемся на маршруты
+app.use(usersRoute);
+app.use(cardsRoute);
 
 // app.use('/', (req, res) => {
 //   res.status(ERROR_NOT_FOUND).send({ message: 'Такого адреса по запросу не существует' });
@@ -88,16 +94,6 @@ app.use((err, req, res, next) => {
       : message,
   });
   next();
-});
-
-// Защита авторизацией всех роутов
-app.use(auth);
-
-// ошибка роутеризации
-app.use((req, res, next) => {
-  const notFound = new Error('Такого ресурса нет');
-  notFound.statusCode = 404;
-  next(notFound);
 });
 
 app.listen(PORT, () => {

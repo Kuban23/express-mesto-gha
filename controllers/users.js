@@ -20,10 +20,11 @@ const AuthentificationError = require('../errors/error_Authentification_401');
 const ConflictError = require('../errors/error_ConflictError_409');
 
 // Получаем всех пользователей
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' }));
+    .then((users) => res.status(200).send({ data: users }))
+    .catch((err) => next(err));
+  // .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' }));
 };
 
 // Возвращаем пользователя по _id
@@ -160,11 +161,13 @@ module.exports.login = (req, res, next) => {
 };
 
 // Создали контроллер для получения пользователя
-module.exports.getCurrentUser = (req, res, next) => User.findById(req.user._id)
-  .then((user) => {
-    if (!user) {
-      next(new ERROR_NOT_FOUND('Пользователь с указанным _id не найден'));
-    }
-    res.status(200).send({ data: user });
-  })
-  .catch((err) => next(err));
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        next(new ERROR_NOT_FOUND('Пользователь с указанным _id не найден'));
+      }
+      res.status(200).send({ data: user });
+    })
+    .catch((err) => next(err));
+};

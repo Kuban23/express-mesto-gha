@@ -14,6 +14,7 @@ const {
 } = require('../controllers/users');
 
 router.get('/users', getUsers);
+
 router.get('/users/:userId', celebrate({
   params: Joi.object().keys({
     userId: Joi.string().length(24).hex(),
@@ -37,6 +38,7 @@ router.patch('/users/me/avatar', celebrate({
   }),
 }), updateAvatar);
 
+// Получаем информацию о текущем пользователе
 router.get('/users/me', getCurrentUser);
 
 module.exports = router;

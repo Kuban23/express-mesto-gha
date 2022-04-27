@@ -84,23 +84,19 @@ module.exports.likeCard = (req, res, next) => {
 };
 
 // Удаляем лайк с карточки
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } }, // убрать _id из массива
+    { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (!card) {
-        return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' });
-      }
-      return res.send({ data: card });
-    })
+    .orFail(() => new ERROR_NOT_FOUND('Карточка не найдена'))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданный id некорректный' });
-        return;
+        next(new BAD_REQUEST('Некорректный id карточки'));
+      } else {
+        next(err);
       }
-      res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });
 };

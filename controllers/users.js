@@ -38,21 +38,6 @@ module.exports.getUserById = (req, res, next) => {
         next(err);
       }
     });
-  // User.findById(req.params.userId)
-  //   .then((user) => {
-  //     if (!user) {
-  //       return res.status(ERROR_NOT_FOUND).send
-  // ({ message: 'Пользователь с указанным _id не найден' });
-  //     }
-  //     return res.send({ data: user });
-  //   })
-  //   .catch((err) => {
-  //     if (err.name === 'CastError') {
-  //       res.status(BAD_REQUEST).send({ message: 'Переданный id некорректный' });
-  //       return;
-  //     }
-  //     res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
-  //   });
 };
 
 // Создаем пользователя  findByIdAndUpdate
@@ -85,23 +70,6 @@ module.exports.createUser = (req, res, next) => {
         },
       });
     })
-    // .then((hash) => User.create({
-    //   name: req.body.name,
-    //   about: req.body.about,
-    //   avatar: req.body.avatar,
-    //   email: req.body.email,
-    //   password: hash, // записываем хеш в базу
-    // }))
-    // .then((hash) => User.create({
-    //   name,
-    //   about,
-    //   avatar,
-    //   email,
-    //   password: hash,
-    // }))
-    // .then((user) => res.res.status(200).send({
-    //   data: user,
-    // }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BAD_REQUEST('Некорректные данные пользователя'));
@@ -112,16 +80,6 @@ module.exports.createUser = (req, res, next) => {
         next(err);
       }
     });
-  // .catch((err) => {
-  //   if (err.name === 'ValidationError') {
-  //     res.status(BAD_REQUEST).send({ message: 'переданы некорректные данные' });
-  //     return;
-  //   }
-  //   if (err.name === 'MongoError' && err.code === 11000) {
-  //     throw new ConflictError('Пользователь с указанным email уже существует');
-  //   }
-  //   res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
-  // });
 };
 
 // Обновляем профиль пользователя

@@ -40,28 +40,31 @@ module.exports.createCard = (req, res) => {
 };
 
 // Удаляем карточку по id
-module.exports.removeCard = (req, res) => {
+module.exports.removeCard = (req, res, next) => {
   // Находим карточку и удалим
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
+      if (!card) {
+        throw new ERROR_NOT_FOUND('Карточка не найдена');
+      }
       // Проверяем может ли пользователь удалить карточку
       // card.owner._id имеет формат object, а user._id -string
       // Приводим к строке
       if (req.user._id !== card.owner.toString()) {
         // Выдаем ошибку, что пользователь не может удалить чужую карточку
-        throw new DeleteSomeoneError('Нельзя удалить чужую карточку');
-      } else {
-        card.remove();
-        res.status(200)
-          .send({ message: `Карточка с id ${card.id} удалена!` });
+        throw new DeleteSomeoneError('Вы не можете удалить чужую карточку');
       }
+      return card.remove()
+        .then(() => res.status(200).send({ data: card, message: 'Карточка успешно удалена' }));
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданный id некорректный' });
-        return;
+      if (err.message === 'NotValidId') {
+        next(new ERROR_NOT_FOUND('Карточка не найдена'));
+      } else if (err.name === 'CastError') {
+        next(new BAD_REQUEST('Некорректный id карточки'));
+      } else {
+        next(err);
       }
-      res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });
 };
 

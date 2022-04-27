@@ -27,21 +27,32 @@ module.exports.getUsers = (req, res) => {
 };
 
 // Возвращаем пользователя по _id
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
-      }
-      return res.send({ data: user });
-    })
+    .orFail(() => new ERROR_NOT_FOUND('Пользователь с указанным id не существует'))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданный id некорректный' });
-        return;
+        next(new BAD_REQUEST('Некорректный id пользователя'));
+      } else {
+        next(err);
       }
-      res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });
+  // User.findById(req.params.userId)
+  //   .then((user) => {
+  //     if (!user) {
+  //       return res.status(ERROR_NOT_FOUND).send
+  // ({ message: 'Пользователь с указанным _id не найден' });
+  //     }
+  //     return res.send({ data: user });
+  //   })
+  //   .catch((err) => {
+  //     if (err.name === 'CastError') {
+  //       res.status(BAD_REQUEST).send({ message: 'Переданный id некорректный' });
+  //       return;
+  //     }
+  //     res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
+  //   });
 };
 
 // Создаем пользователя  findByIdAndUpdate

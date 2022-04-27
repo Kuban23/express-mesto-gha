@@ -66,7 +66,7 @@ app.post(
 );
 
 // Защита авторизацией всех маршрутов
-// app.use(auth);
+app.use(auth);
 
 // Подписываемся на маршруты
 app.use(usersRoute);
@@ -86,6 +86,7 @@ app.use(errors());
 // Обработка всех ошибок централизованно
 app.use((err, req, res, next) => {
   const { message } = err;
+  // console.log(message);
   const statusCode = err.statusCode || 500;
   // проверяем статус, отправляем сообщение в зависимости от статуса
   res.status(statusCode).send({

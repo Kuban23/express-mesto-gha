@@ -6,15 +6,15 @@ module.exports = (req, res, next) => {
   const { authorization } = req.headers;
   // убедимся, что он есть и начинается с Bearer
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new AuthentificationError('Передан неверный логин или пароль');
+    throw new AuthentificationError('Необходима авторизация.');
   }
-  // если токен на есть, берем его
+  // если токен есть, берем его
   const token = authorization.replace('Bearer ', '');
   let payload;
   try {
     payload = jwt.verify(token, 'some-secret-key');
   } catch (err) {
-    next(new AuthentificationError('Передан неверный логин или пароль.'));
+    next(new AuthentificationError('Необходима авторизация.'));
   }
   req.user = payload; // записываем пейлоуд в объект запроса
   next(); // пропускаем запрос дальше

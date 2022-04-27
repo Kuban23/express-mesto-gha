@@ -62,12 +62,35 @@ module.exports.createUser = (req, res, next) => {
       about,
       avatar,
       email,
-      password: hash,
+      password: hash, // записываем хеш в базу
     }))
-    // User.create({ name, about, avatar })
-    .then((user) => res.res.status(200).send({
-      data: user,
-    }))
+    .then((user) => {
+      res.status(200).send({
+        user: {
+          email: user.email,
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+        },
+      });
+    })
+    // .then((hash) => User.create({
+    //   name: req.body.name,
+    //   about: req.body.about,
+    //   avatar: req.body.avatar,
+    //   email: req.body.email,
+    //   password: hash, // записываем хеш в базу
+    // }))
+    // .then((hash) => User.create({
+    //   name,
+    //   about,
+    //   avatar,
+    //   email,
+    //   password: hash,
+    // }))
+    // .then((user) => res.res.status(200).send({
+    //   data: user,
+    // }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BAD_REQUEST('Некорректные данные пользователя'));
@@ -150,11 +173,12 @@ module.exports.login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       // const token = jwt.sign({ _id: user._id },
-      // NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      console.log(token);
       return res.status(200).send({ token }); // возвращаем токен в теле ответа
     })
     .catch(() => {
+      // res.status(401).send({ message: err.message });
       next(new AuthentificationError('Неправильный адрес почты или пароль'));
     });
 };

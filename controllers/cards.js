@@ -10,19 +10,20 @@ const ERROR_NOT_FOUND = require('../errors/error_not_found_404');
 
 const BAD_REQUEST = require('../errors/error_bad_request_400');
 
-const INTERNAL_SERVER_ERR = require('../errors/error_inretnal_server_500');
+// const INTERNAL_SERVER_ERR = require('../errors/error_inretnal_server_500');
 
 const DeleteSomeoneError = require('../errors/errore_delete_someone_403');
 
 // Возвращаем все карточки
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' }));
+    .catch(next);
+  // .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' }));
 };
 
 // Создаём карточку
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   // console.log(req.user._id); // _id станет доступен
   const { name, link } = req.body;
   const owner = req.user._id;
@@ -32,11 +33,18 @@ module.exports.createCard = (req, res) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Не корректные данные' });
-        return;
+        next(new BAD_REQUEST('Некорректные данные карточки'));
+      } else {
+        next(err);
       }
-      res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });
+  // .catch((err) => {
+  //   if (err.name === 'ValidationError') {
+  //     res.status(BAD_REQUEST).send({ message: 'Не корректные данные' });
+  //     return;
+  //   }
+  //   res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
+  // });
 };
 
 // Удаляем карточку по id

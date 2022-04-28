@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const { errors, celebrate, Joi } = require('celebrate');
 const bodyParser = require('body-parser');
 const auth = require('./middlewares/auth');
+const serverError = require('./middlewares/serverError');
 
 const ERROR_NOT_FOUND = require('./errors/error_not_found_404');
 
@@ -83,18 +84,19 @@ app.use('*', auth, (req, res, next) => {
 // Создал обработчик ошибок для celebrate
 app.use(errors());
 
-// Обработка всех ошибок централизованно
+// Обработка всех ошибок централизованно serverError
 app.use((err, req, res, next) => {
-  const { message } = err;
-  // console.log(message);
-  const statusCode = err.statusCode || 500;
-  // проверяем статус, отправляем сообщение в зависимости от статуса
-  res.status(statusCode).send({
-    message: statusCode === 500
-      ? 'Ошибка на сервере'
-      : message,
-  });
-  next();
+  serverError(err, req, res, next);
+  // const { message } = err;
+  // // console.log(message);
+  // const statusCode = err.statusCode || 500;
+  // // проверяем статус, отправляем сообщение в зависимости от статуса
+  // res.status(statusCode).send({
+  //   message: statusCode === 500
+  //     ? 'Ошибка на сервере'
+  //     : message,
+  // });
+  // next();
 });
 
 app.listen(PORT, () => {

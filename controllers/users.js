@@ -13,17 +13,18 @@ const ERROR_NOT_FOUND = require('../errors/error_not_found_404');
 
 const BAD_REQUEST = require('../errors/error_bad_request_400');
 
-const INTERNAL_SERVER_ERR = require('../errors/error_inretnal_server_500');
+// const INTERNAL_SERVER_ERR = require('../errors/error_inretnal_server_500');
 
 const AuthentificationError = require('../errors/error_Authentification_401');
 
 const ConflictError = require('../errors/error_ConflictError_409');
 
 // Получаем всех пользователей
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
-    .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' }));
+    .catch(next);
+  // .catch(() => res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' }));
 };
 
 // Возвращаем пользователя по _id
@@ -83,7 +84,7 @@ module.exports.createUser = (req, res, next) => {
 };
 
 // Обновляем профиль пользователя
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   // ищем пользователя по id
   User.findByIdAndUpdate(
@@ -98,19 +99,26 @@ module.exports.updateUser = (req, res) => {
       res.send({ data: newUserInfo });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'переданы некорректные данные' });
-        return;
+      if ((err.name === 'ValidationError' || err.name === 'CastError')) {
+        next(new BAD_REQUEST('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-      if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'передан некорректный id' });
-      }
-      res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });
+  // .catch((err) => {
+  //   if (err.name === 'ValidationError') {
+  //     res.status(BAD_REQUEST).send({ message: 'переданы некорректные данные' });
+  //     return;
+  //   }
+  //   if (err.name === 'CastError') {
+  //     res.status(BAD_REQUEST).send({ message: 'передан некорректный id' });
+  //   }
+  //   res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
+  // });
 };
 
 // Обновляем аватар
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   // ищем пользователя по id
   User.findByIdAndUpdate(
@@ -125,15 +133,22 @@ module.exports.updateAvatar = (req, res) => {
       res.send({ data: newUserAvatar });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'переданы некорректные данные' });
-        return;
+      if ((err.name === 'ValidationError' || err.name === 'CastError')) {
+        next(new BAD_REQUEST('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-      if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'передан некорректный id' });
-      }
-      res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
     });
+  // .catch((err) => {
+  //   if (err.name === 'ValidationError') {
+  //     res.status(BAD_REQUEST).send({ message: 'переданы некорректные данные' });
+  //     return;
+  //   }
+  //   if (err.name === 'CastError') {
+  //     res.status(BAD_REQUEST).send({ message: 'передан некорректный id' });
+  //   }
+  //   res.status(INTERNAL_SERVER_ERR).send({ message: 'Что-то пошло не так' });
+  // });
 };
 
 // Создали контроллер login который проверяет логин и пароль

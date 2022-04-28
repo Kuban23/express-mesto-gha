@@ -1,4 +1,4 @@
-module.exports.serverError = ((err, req, res, next) => {
+module.exports.serverError = (err, req, res) => {
   const { message } = err;
   // console.log(message);
   const statusCode = err.statusCode || 500;
@@ -8,5 +8,4 @@ module.exports.serverError = ((err, req, res, next) => {
       ? 'Ошибка на сервере'
       : message,
   });
-  next();
-});
+};
